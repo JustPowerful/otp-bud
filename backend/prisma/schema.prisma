@@ -16,6 +16,7 @@ model User {
   lastname  String
   
   tokens Token[] // The tokens associated with the user
+  applications Application[] // The applications owned by the user
 
   accountId String
   account   Account @relation(fields: [accountId], references: [id])
@@ -38,4 +39,17 @@ model Token {
   userId String
   account   User  @relation(fields: [userId], references: [id])
   expiresAt DateTime?
+}
+
+model Application {
+  id         String   @id @default(cuid())
+  name        String
+  picture     String?
+  description String?
+
+  ownerId String
+  owner   User @relation(fields: [ownerId], references: [id]) 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
