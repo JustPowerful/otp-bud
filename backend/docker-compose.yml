@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: otpbud-postgres
+    restart: "no"
+    environment:
+      POSTGRES_USER: otpbud
+      POSTGRES_PASSWORD: otpbud
+      POSTGRES_DB: otpbud
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - saas-network
+
+networks:
+  saas-network:
+
+volumes:
+  pgdata:

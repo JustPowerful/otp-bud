@@ -1,4 +1,6 @@
-# OTP bud
-OTP bud is a SaaS that will help you deliver a one time password service without having to code the full project.
+Dot env example:
 
-The project is still in development
+```bash
+DATABASE_URL="postgres://qahwa:qahwa@localhost:5432/qahwa"
+JWT_SECRET="topsecretkeyforjwt"
+```
