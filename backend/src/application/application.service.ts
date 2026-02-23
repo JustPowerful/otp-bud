@@ -8,6 +8,22 @@ import { Prisma } from 'generated/prisma/client';
 @Injectable()
 export class ApplicationService {
   /**
+   * Validates whether a user is the owner of a specific application by checking the application ID and user ID against the database. This function queries the database to confirm that the application with the given ID is owned by the user with the specified ID, returning true if ownership is confirmed and false otherwise.
+   * @param applicationId The ID of the application to check ownership for
+   * @param userId The ID of the user to check ownership against
+   * @returns
+   */
+  async validateOwnership(applicationId: string, userId: string) {
+    const exists = await prisma.application.findFirst({
+      where: {
+        id: applicationId,
+        ownerId: userId,
+      },
+    });
+    return !!exists;
+  }
+
+  /**
    * Creates a new application with the specified name, description, and picture, and associates it with the given owner ID.
    * @param ownerId ID of the user who will own the application
    * @param createApplication_Object Object containing the name, description, and picture of the application to be created

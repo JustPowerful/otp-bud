@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -69,7 +70,7 @@ export class TokenController {
   @UseGuards(AuthGuard)
   async paginateTokens(
     @CurrentUser() user: JwtPayload,
-    @Body() paginationDto: PaginationDto,
+    @Query() paginationDto: PaginationDto,
   ) {
     const {
       items,
