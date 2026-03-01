@@ -6,6 +6,18 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Global prefix for the
+  //  current API version
+  app.setGlobalPrefix('api/v1');
+
+  // Enable CORS with specific settings
+  app.enableCors({
+    origin:
+      process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Qahwa Internal API')
     .setDescription("Qahwa ' internal app API (Private)")
@@ -24,7 +36,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
   // Validation pipes can be globally applied here if needed
   app.useGlobalPipes(

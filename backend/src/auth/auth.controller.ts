@@ -7,6 +7,7 @@ import { JwtPayload } from 'src/types/express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { prisma } from 'src/lib/prisma';
+import { SuccessResponseDto } from 'src/common/dto/success-response.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -15,12 +16,14 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: LoginAuthDto) {
-    const token = await this.authService.login(body);
-    return {
-      success: true,
+    const { token, user } = await this.authService.login(body);
+    return new SuccessResponseDto({
+      data: {
+        token,
+        user,
+      },
       message: 'Login successful',
-      token,
-    };
+    });
   }
 
   @Post('register')
@@ -29,10 +32,9 @@ export class AuthController {
     body: RegisterAuthDto,
   ) {
     await this.authService.register(body);
-    return {
-      success: true,
+    return new SuccessResponseDto({
       message: 'Registration successful',
-    };
+    });
   }
 
   @ApiBearerAuth('access-token')
@@ -54,10 +56,11 @@ export class AuthController {
         },
       },
     });
-    return {
-      success: true,
+    return new SuccessResponseDto({
+      data: {
+        user,
+      },
       message: 'Authorization token is valid',
-      user,
-    };
+    });
   }
 }

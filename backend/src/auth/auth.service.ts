@@ -38,6 +38,14 @@ export class AuthService {
   async login({ email, password }: LoginAuthDto) {
     const account = await prisma.account.findUnique({
       where: { email },
+      include: {
+        user: {
+          select: {
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
     });
     if (!account) {
       throw new UnauthorizedException('Invalid email or password');
@@ -56,7 +64,14 @@ export class AuthService {
       { accountId: account.id, email: account.email },
       jwtSecret,
     );
-    return token;
+    return {
+      token,
+      user: {
+        firstname: account.user[0].firstname,
+        lastname: account.user[0].lastname,
+        email: account.email,
+      },
+    };
   }
   async validateToken(token: string): Promise<JwtPayload | undefined> {
     const jwtSecret = process.env.JWT_SECRET;
