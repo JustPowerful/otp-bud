@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import api from "../api/axiosInstance";
+import api, { setAuthStore } from "../api/axiosInstance";
 
 interface User {
   firstname: string;
@@ -27,18 +27,23 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       user: null,
       setAuthenticated: (value) => set({ isAuthenticated: value }),
-      setToken: (token) => set({ token }),
+      setToken: (token) => {
+        set({ token });
+        setAuthStore(get());
+      },
       setUser: (user) => set({ user }),
       login: async (email, password) => {
         const { data } = await api.post("/auth/login", { email, password });
         set({
-          token: data.token,
-          user: data.user,
+          token: data.data.token,
+          user: data.data.user,
           isAuthenticated: true,
         });
+        setAuthStore(get());
       },
       logout: () => {
         set({ isAuthenticated: false, token: null, user: null });
+        setAuthStore(null);
       },
       getUser: () => get().user,
     }),
@@ -49,6 +54,17 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
         user: state.user,
       }),
+      onRehydrateStorage: () => (rehydratedState, error) => {
+        // After hydration from localStorage, update the global auth store reference
+        if (!error && rehydratedState?.token) {
+          setAuthStore(rehydratedState);
+        }
+      },
     },
   ),
 );
+
+// Subscribe to any future state changes to keep global auth store in sync
+useAuthStore.subscribe((state) => {
+  setAuthStore(state);
+});

@@ -13,12 +13,16 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    firstname: string;
-    lastname: string;
-    email: string;
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    user: {
+      id: string;
+      firstname: string;
+      lastname: string;
+      email: string;
+    };
   };
 }
 

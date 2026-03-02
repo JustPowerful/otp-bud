@@ -58,8 +58,8 @@ const SignUp = () => {
   const { mutate: signup, isPending } = useMutation({
     mutationFn: (credentials: RegisterRequest) => authApi.register(credentials),
     onSuccess: (data) => {
-      setToken(data.token);
-      setUser(data.user);
+      setToken(data.data.token);
+      setUser(data.data.user);
       setAuthenticated(true);
       navigate("/");
     },

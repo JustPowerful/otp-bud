@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { prisma } from 'src/lib/prisma';
-import crypto from 'crypto';
+import { randomBytes } from 'crypto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Prisma } from 'generated/prisma/client';
 
@@ -70,9 +70,10 @@ export class TokenService {
    * @returns the created token data
    */
   async createToken(userId: string, expiresIn?: number) {
+    const generatedToken = randomBytes(32).toString('hex');
     const data = await prisma.token.create({
       data: {
-        token: crypto.randomBytes(32).toString('hex'),
+        token: generatedToken,
         userId,
         expiresAt: expiresIn ? new Date(Date.now() + expiresIn * 1000) : null,
       },

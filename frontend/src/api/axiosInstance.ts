@@ -1,4 +1,3 @@
-import { useAuthStore } from "@/stores/authStore";
 import axios from "axios";
 
 // read API URL from Vite environment variable, fallback for examples/tests
@@ -7,26 +6,28 @@ const API_URL = import.meta.env.VITE_API_URL || "https://api.example.com";
 const api = axios.create({
   // baseURL configured via frontend/.env (VITE_API_URL)
   baseURL: API_URL,
-  timeout: 10000, // 10 secondslll
+  timeout: 10000, // 10 seconds
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// Optional: Add a request interceptor (e.g., for Auth Tokens)
-api.interceptors.request.use(
-  (config) => {
-    // get the token from the auth store and add it to the headers if it exists
-    const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+// Add a request interceptor for Auth Tokens
+// Using a lazy-loaded getter to avoid circular dependency with authStore
+api.interceptors.request.use((config) => {
+  // Lazy load authStore only when needed
+  const authStore = (globalThis as any).__auth_store__ || null;
+  if (authStore?.token) {
+    console.log("Attaching token to request:", authStore.token);
+    config.headers.Authorization = `Bearer ${authStore.token}`;
+  }
+  return config;
+});
+
+// Export a function to set the auth store reference
+export function setAuthStore(store: any) {
+  (globalThis as any).__auth_store__ = store;
+}
 
 export default api;

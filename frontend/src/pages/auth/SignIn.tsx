@@ -47,8 +47,8 @@ export const SignIn = () => {
   const { mutate: login, isPending } = useMutation({
     mutationFn: (credentials: LoginRequest) => authApi.login(credentials),
     onSuccess: (data) => {
-      setToken(data.token);
-      setUser(data.user);
+      setToken(data.data.token);
+      setUser(data.data.user);
       setAuthenticated(true);
       navigate("/");
     },

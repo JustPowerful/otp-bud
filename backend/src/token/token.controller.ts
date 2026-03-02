@@ -17,11 +17,13 @@ import { SuccessResponseDto } from 'src/common/dto/success-response.dto';
 import { JwtPayload } from 'src/types/express';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { TokenOwnershipGuard } from './guards/token-ownership/token-ownership.guard';
+import { ApiBearerAuth } from '@nestjs/swagger/dist/decorators/api-bearer.decorator';
 
 @Controller('token')
 export class TokenController {
   constructor(private readonly tokenService: TokenService) {}
 
+  @ApiBearerAuth('access-token')
   @Post('create')
   @UseGuards(AuthGuard)
   async createToken(
@@ -29,12 +31,12 @@ export class TokenController {
     @Body() createTokenDto: CreateTokenDto,
   ) {
     // This will create a token for the authenticated user with the specified expiration time or no expiration if not provided
-    const token = this.tokenService.createToken(
+    const token = await this.tokenService.createToken(
       user.id,
       createTokenDto.expirationTime,
     );
     return new SuccessResponseDto({
-      data: { token },
+      data: token,
       message: 'Token created successfully',
       meta: {
         expirationTime:
@@ -43,6 +45,7 @@ export class TokenController {
     });
   }
 
+  @ApiBearerAuth('access-token')
   @Get('/details/:token')
   @UseGuards(AuthGuard, TokenOwnershipGuard)
   async getTokenDetails(@Param('token') token: string) {
@@ -56,6 +59,7 @@ export class TokenController {
     });
   }
 
+  @ApiBearerAuth('access-token')
   @Delete('revoke/:token')
   @UseGuards(AuthGuard, TokenOwnershipGuard)
   async revokeToken(@CurrentUser() user, @Param('token') token: string) {
@@ -66,6 +70,7 @@ export class TokenController {
     });
   }
 
+  @ApiBearerAuth('access-token')
   @Post('paginate')
   @UseGuards(AuthGuard)
   async paginateTokens(
