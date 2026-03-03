@@ -102,9 +102,14 @@ export const tokenApi = {
     return data;
   },
   paginateTokens: async (request: PaginateTokensRequest) => {
-    const { data } = await api.post<PaginateTokensResponse>("/token/paginate", {
-      ...request,
-    });
+    const { data } = await api.post<PaginateTokensResponse>(
+      "/token/paginate",
+      undefined,
+      {
+        // Send pagination parameters as query params
+        params: request,
+      },
+    );
     return data;
   },
 };

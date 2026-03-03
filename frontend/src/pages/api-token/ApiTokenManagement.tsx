@@ -31,11 +31,14 @@ const ApiTokenManagement = () => {
         page: currentPage,
         limit: pageLimit,
       }),
+    staleTime: 0,
+    gcTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const revokeMutation = useMutation({
     mutationFn: (token: string) => tokenApi.revokeToken({ token }),
     onSuccess: () => {
+      // Invalidate all token queries to refetch on any page
       queryClient.invalidateQueries({ queryKey: ["tokens"] });
     },
     onError: (error) => {
@@ -51,9 +54,7 @@ const ApiTokenManagement = () => {
 
   const handleRevoke = useCallback(
     (token: string) => {
-      if (confirm("Are you sure you want to revoke this token?")) {
-        revokeMutation.mutate(token);
-      }
+      revokeMutation.mutate(token);
     },
     [revokeMutation],
   );
@@ -62,169 +63,156 @@ const ApiTokenManagement = () => {
   const meta = tokensResponse?.meta;
   const totalPages = meta ? Math.ceil(meta.total / pageLimit) : 1;
 
+  const getPaginationPages = () => {
+    const pages: (number | string)[] = [];
+    const maxPagesToShow = 7;
+
+    if (totalPages <= maxPagesToShow) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const halfWindow = 2;
+    const startPage = Math.max(1, currentPage - halfWindow);
+    const endPage = Math.min(totalPages, currentPage + halfWindow);
+
+    if (startPage > 1) {
+      pages.push(1);
+    }
+
+    if (startPage > 2) {
+      pages.push("...");
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < totalPages - 1) {
+      pages.push("...");
+    }
+
+    if (endPage < totalPages) {
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
+  const paginationPages = getPaginationPages();
+
   return (
-    <div className="p-10">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">API Token Management</h1>
-        <Button onClick={() => setIsModalOpen(true)}>
-          Create a new API token
-        </Button>
-      </div>
-
-      {error && (
-        <div className="bg-destructive/10 text-destructive border border-destructive rounded-md p-4 mb-4">
-          <p>Failed to load tokens. Please try again.</p>
+    <>
+      {/* Revoke Modal */}
+      <div className="p-10">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">API Token Management</h1>
+          <Button onClick={() => setIsModalOpen(true)}>
+            Create a new API token
+          </Button>
         </div>
-      )}
 
-      <div className="bg-white shadow rounded-lg p-4 mb-6">
-        <TokensTable
-          tokens={tokens}
-          onRevoke={handleRevoke}
-          isLoading={isLoading}
+        {error && (
+          <div className="bg-destructive/10 text-destructive border border-destructive rounded-md p-4 mb-4">
+            <p>Failed to load tokens. Please try again.</p>
+          </div>
+        )}
+
+        <div className="bg-white shadow rounded-lg p-4 mb-6">
+          <TokensTable
+            tokens={tokens}
+            onRevoke={handleRevoke}
+            isLoading={isLoading}
+          />
+        </div>
+
+        {tokens.length > 0 && totalPages > 1 && (
+          <div className="flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (currentPage > 1) setCurrentPage(currentPage - 1);
+                    }}
+                    className={`cursor-pointer ${
+                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                    }`}
+                  />
+                </PaginationItem>
+
+                {totalPages <= 5 ? (
+                  Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setCurrentPage(page);
+                          }}
+                          isActive={page === currentPage}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )
+                ) : (
+                  <>
+                    {paginationPages.map((page, index) =>
+                      page === "..." ? (
+                        <PaginationItem key={`ellipsis-${index}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setCurrentPage(page as number);
+                            }}
+                            isActive={page === currentPage}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ),
+                    )}
+                  </>
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (currentPage < totalPages)
+                        setCurrentPage(currentPage + 1);
+                    }}
+                    className={`cursor-pointer ${
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }`}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
+
+        <CreateTokenModal
+          toggle={isModalOpen}
+          setToggle={setIsModalOpen}
+          onTokenCreated={handleTokenCreated}
         />
       </div>
-
-      {tokens.length > 0 && totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) setCurrentPage(currentPage - 1);
-                  }}
-                  className={
-                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                  }
-                />
-              </PaginationItem>
-
-              {totalPages <= 5 ? (
-                Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setCurrentPage(page);
-                        }}
-                        isActive={page === currentPage}
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ),
-                )
-              ) : (
-                <>
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(1);
-                      }}
-                      isActive={1 === currentPage}
-                    >
-                      1
-                    </PaginationLink>
-                  </PaginationItem>
-
-                  {currentPage > 3 && (
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  )}
-
-                  {currentPage > 2 && (
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setCurrentPage(currentPage - 1);
-                        }}
-                      >
-                        {currentPage - 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )}
-
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      isActive
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      {currentPage}
-                    </PaginationLink>
-                  </PaginationItem>
-
-                  {currentPage < totalPages - 1 && (
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setCurrentPage(currentPage + 1);
-                        }}
-                      >
-                        {currentPage + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )}
-
-                  {currentPage < totalPages - 2 && (
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  )}
-
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(totalPages);
-                      }}
-                      isActive={totalPages === currentPage}
-                    >
-                      {totalPages}
-                    </PaginationLink>
-                  </PaginationItem>
-                </>
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages)
-                      setCurrentPage(currentPage + 1);
-                  }}
-                  className={
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
-
-      <CreateTokenModal
-        toggle={isModalOpen}
-        setToggle={setIsModalOpen}
-        onTokenCreated={handleTokenCreated}
-      />
-    </div>
+    </>
   );
 };
 
