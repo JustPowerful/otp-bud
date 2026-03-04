@@ -25,7 +25,7 @@ export class TokenService {
    */
   async paginateTokens(
     userId: string,
-    { page, limit, query, skip }: PaginationDto,
+    { page = 1, limit = 5, query, skip }: PaginationDto,
   ) {
     const where: Prisma.TokenWhereInput = { userId };
     if (query) {
@@ -47,6 +47,7 @@ export class TokenService {
       total,
       page,
       limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 

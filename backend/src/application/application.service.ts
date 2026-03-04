@@ -24,6 +24,20 @@ export class ApplicationService {
   }
 
   /**
+   * Gets the application data associated with a specific application ID from the database. This function queries the database for an application that matches the provided application ID and returns the corresponding application data if found, or null if no application exists with that ID.
+   * @param applicationId The application ID to retrieve from the database
+   * @returns The application data associated with the provided application ID, or null if no application is found with that ID
+   */
+  async getApplication(applicationId: string) {
+    const application = await prisma.application.findUnique({
+      where: {
+        id: applicationId,
+      },
+    });
+    return application;
+  }
+
+  /**
    * Creates a new application with the specified name, description, and picture, and associates it with the given owner ID.
    * @param ownerId ID of the user who will own the application
    * @param createApplication_Object Object containing the name, description, and picture of the application to be created

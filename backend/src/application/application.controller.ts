@@ -42,6 +42,18 @@ export class ApplicationController {
   }
 
   @ApiBearerAuth('access-token')
+  @Get('details/:applicationId')
+  @UseGuards(AuthGuard, ApplicationOwnershipGuard)
+  async getApplicationDetails(@Param('applicationId') applicationId: string) {
+    const application =
+      await this.applicationService.getApplication(applicationId);
+    return new SuccessResponseDto({
+      data: application,
+      message: 'Successfully retrieved the application details',
+    });
+  }
+
+  @ApiBearerAuth('access-token')
   @Get('paginate')
   @UseGuards(AuthGuard)
   async paginateApplications(
