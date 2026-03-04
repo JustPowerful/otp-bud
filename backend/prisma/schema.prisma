@@ -14,8 +14,8 @@ model User {
   id        String @id @default(cuid())
   firstname String
   lastname  String
-  
-  tokens Token[] // The tokens associated with the user
+
+  tokens       Token[] // The tokens associated with the user
   applications Application[] // The applications owned by the user
 
   accountId String
@@ -34,22 +34,41 @@ model Account {
 }
 
 model Token {
-  id       String   @id @default(cuid())
-  token     String   @unique
-  userId String
-  account   User  @relation(fields: [userId], references: [id])
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  account   User      @relation(fields: [userId], references: [id])
   expiresAt DateTime?
 }
 
 model Application {
-  id         String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   picture     String?
   description String?
 
   ownerId String
-  owner   User @relation(fields: [ownerId], references: [id]) 
+  owner   User   @relation(fields: [ownerId], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  templates Template[] // The email templates associated with the application
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Email templates for OTP messages
+model Template {
+  id      String @id @default(cuid())
+  name    String @unique // Identifies the template later in the API calls for the developers
+  subject String // The subject of the email
+  body    String // The body of the email, can contain placeholders for dynamic content like {{otp}} or {{appName}}
+
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  // NOTE: One template can be active at a time for an application, but we keep the old ones for historical purposes and in case the developer wants to switch back to an old template
+  isActive Boolean @default(true) // Indicates if the template is active or not
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

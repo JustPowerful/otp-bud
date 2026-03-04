@@ -4,6 +4,7 @@ import { Home } from "../Home";
 import { SignIn } from "@/pages/auth/SignIn";
 import SignUp from "@/pages/auth/SignUp";
 import ApiTokenManagement from "@/pages/api-token/ApiTokenManagement";
+import ApplicationManagement from "@/pages/application/ApplicationManagement";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { path: "signin", element: <SignIn /> },
       { path: "signup", element: <SignUp /> },
       { path: "api-keys", element: <ApiTokenManagement /> },
+      { path: "applications", element: <ApplicationManagement /> },
     ],
   },
 ]);

@@ -18,11 +18,13 @@ import { SuccessResponseDto } from 'src/common/dto/success-response.dto';
 import { ApplicationOwnershipGuard } from './guards/application-ownership/application-ownership.guard';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('application')
 export class ApplicationController {
   constructor(private readonly applicationService: ApplicationService) {}
 
+  @ApiBearerAuth('access-token')
   @Post('create')
   @UseGuards(AuthGuard)
   async createApplication(
@@ -39,6 +41,7 @@ export class ApplicationController {
     });
   }
 
+  @ApiBearerAuth('access-token')
   @Get('paginate')
   @UseGuards(AuthGuard)
   async paginateApplications(
@@ -68,6 +71,7 @@ export class ApplicationController {
     });
   }
 
+  @ApiBearerAuth('access-token')
   @Patch('update/:applicationId')
   @UseGuards(AuthGuard, ApplicationOwnershipGuard)
   async updateApplication(
@@ -84,6 +88,7 @@ export class ApplicationController {
     });
   }
 
+  @ApiBearerAuth('access-token')
   @Delete('remove/:applicationId')
   @UseGuards(AuthGuard, ApplicationOwnershipGuard)
   async removeApplication(@Param('applicationId') applicationId: string) {

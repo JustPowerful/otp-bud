@@ -32,7 +32,7 @@ export function Navbar() {
           {/* Logo */}
           <Link
             to="/"
-            className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            className="text-2xl font-bold bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
           >
             OTP Bud
           </Link>
