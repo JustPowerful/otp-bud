@@ -51,11 +51,22 @@ export interface PaginateApplicationsResponse {
   };
 }
 
+export interface GetApplicationByIdResponse {
+  success: boolean;
+  message: string;
+  data: Application;
+}
+
 export const applicationApi = {
   createApplication: async (request: CreateApplicationRequest) => {
     return await api.post<CreateApplicationResponse>(
       "/application/create",
       request,
+    );
+  },
+  getApplicationById: async (applicationId: string) => {
+    return await api.get<GetApplicationByIdResponse>(
+      `/application/details/${applicationId}`,
     );
   },
   paginateApplications: async (request: PaginateApplicationsRequest) => {

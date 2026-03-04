@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import DeleteApplicationModal from "./DeleteApplicationModal";
 import CreateApplicationModal from "./CreateApplicationModal";
+import { Link } from "react-router-dom";
 
 const ApplicationPreview = ({
   application,
@@ -24,7 +25,9 @@ const ApplicationPreview = ({
         </div>
         <div className="min-w-0">
           <CardTitle className="text-base truncate">
-            {application.name}
+            <Link to={`/applications/${application.id}`}>
+              {application.name}
+            </Link>
           </CardTitle>
           <CardDescription className="line-clamp-2">
             {application.description || "No description has been provided."}

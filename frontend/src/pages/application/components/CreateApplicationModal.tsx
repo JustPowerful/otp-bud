@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 
 type CreateApplicationModalProps = {
   onCreated?: () => void;
-  mode: "create" | "edit";
+  mode?: "create" | "edit";
   applicationId?: string;
 };
 

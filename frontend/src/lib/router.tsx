@@ -5,6 +5,7 @@ import { SignIn } from "@/pages/auth/SignIn";
 import SignUp from "@/pages/auth/SignUp";
 import ApiTokenManagement from "@/pages/api-token/ApiTokenManagement";
 import ApplicationManagement from "@/pages/application/ApplicationManagement";
+import ApplicationDetails from "@/pages/application/ApplicationDetails";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,8 @@ export const router = createBrowserRouter([
       { path: "signup", element: <SignUp /> },
       { path: "api-keys", element: <ApiTokenManagement /> },
       { path: "applications", element: <ApplicationManagement /> },
+      // Application details
+      { path: "applications/:applicationId", element: <ApplicationDetails /> },
     ],
   },
 ]);
