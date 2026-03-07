@@ -26,6 +26,35 @@ export class TemplateService {
   }
 
   /**
+   * Sets the active template for a specific application by updating the template's isActive flag to true.
+   * @param applicationId The ID of the application for which to set the active template
+   * @param templateId The ID of the template to set as active
+   * @returns The updated template data
+   */
+  async setActiveTemplate(applicationId: string, templateId: string) {
+    // First, deactivate all templates for the application
+    await prisma.template.updateMany({
+      where: {
+        applicationId,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    // Then, activate the specified template
+    const template = await prisma.template.update({
+      where: {
+        id: templateId,
+      },
+      data: {
+        isActive: true,
+      },
+    });
+    return template;
+  }
+
+  /**
    * Create a new template associated with a specific application by providing the application ID and template details. This function takes the application ID and a CreateTemplateDto object containing the name, subject, and body of the template, creates a new template in the database linked to the specified application, and returns the created template data.
    * @param applicationId The ID of the application to associate the new template with
    * @param createTemplate_Object An object containing the name, subject, and body of the template to be created
@@ -35,12 +64,23 @@ export class TemplateService {
     applicationId: string,
     { name, subject, body }: CreateTemplateDto,
   ) {
+    // Check if other active templates exist for the application
+    const activeTemplate = await prisma.template.findFirst({
+      where: {
+        applicationId,
+        isActive: true,
+      },
+    });
+
+    const isActive = !activeTemplate; // Set the new template as active if no other active templates exist
+
     const template = await prisma.template.create({
       data: {
         name,
         subject,
         body,
         applicationId,
+        isActive,
       },
     });
     return template;

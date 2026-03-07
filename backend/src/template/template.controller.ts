@@ -3,9 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { TemplateService } from './template.service';
@@ -21,6 +23,22 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 @Controller('template')
 export class TemplateController {
   constructor(private readonly templateService: TemplateService) {}
+
+  @ApiBearerAuth('access-token')
+  @Patch('activate/:templateId')
+  @UseGuards(AuthGuard, TemplateOwnershipGuard)
+  async setActiveTemplate(@Param('templateId') templateId: string) {
+    const currentTemplate = await this.templateService.getTemplate(templateId);
+    if (!currentTemplate) throw new NotFoundException('Template not found');
+    const template = await this.templateService.setActiveTemplate(
+      currentTemplate?.applicationId || '',
+      templateId,
+    );
+    return new SuccessResponseDto({
+      data: template,
+      message: 'Active template set successfully',
+    });
+  }
 
   // The token injector for swagger
   @ApiBearerAuth('access-token')
@@ -56,7 +74,7 @@ export class TemplateController {
   @UseGuards(AuthGuard, ApplicationOwnershipGuard)
   async paginateTemplates(
     @Param('applicationId') applicationId: string,
-    paginationDto: PaginationDto,
+    @Query() paginationDto: PaginationDto,
   ) {
     const { data, limit, page, total, totalPages } =
       await this.templateService.paginateTemplates(
