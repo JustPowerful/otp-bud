@@ -2,7 +2,12 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
-import { authApi, type RegisterRequest } from "@/api/authApi";
+import {
+  authApi,
+  type AuthResponse,
+  type LoginRequest,
+  type RegisterRequest,
+} from "@/api/authApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -44,6 +49,13 @@ const SignUp = () => {
   const setToken = useAuthStore((state) => state.setToken);
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
 
+  const handleAuthSuccess = (response: AuthResponse) => {
+    setToken(response.data.token);
+    setUser(response.data.user);
+    setAuthenticated(true);
+    navigate("/");
+  };
+
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -55,22 +67,35 @@ const SignUp = () => {
     },
   });
 
-  const { mutate: signup, isPending } = useMutation({
-    mutationFn: (credentials: RegisterRequest) => authApi.register(credentials),
-    onSuccess: (data) => {
-      setToken(data.data.token);
-      setUser(data.data.user);
-      setAuthenticated(true);
-      navigate("/");
-    },
+  const { mutate: login, isPending: isLoginPending } = useMutation({
+    mutationFn: (credentials: LoginRequest) => authApi.login(credentials),
+    onSuccess: handleAuthSuccess,
     onError: (error) => {
-      console.error("Registration failed:", error);
+      console.error("Login failed:", error);
     },
   });
 
+  const { mutate: registerAccount, isPending: isRegisterPending } = useMutation(
+    {
+      mutationFn: (credentials: RegisterRequest) =>
+        authApi.register(credentials),
+      onSuccess: (_data, variables) => {
+        login({
+          email: variables.email,
+          password: variables.password,
+        });
+      },
+      onError: (error) => {
+        console.error("Registration failed:", error);
+      },
+    },
+  );
+
+  const isSubmitting = isRegisterPending || isLoginPending;
+
   const onSubmit = (data: SignUpFormData) => {
     const { confirmPassword, ...registerData } = data;
-    signup(registerData);
+    registerAccount(registerData);
   };
 
   return (
@@ -180,8 +205,8 @@ const SignUp = () => {
                 )}
               />
 
-              <Button type="submit" className="w-full" disabled={isPending}>
-                {isPending ? "Creating account..." : "Sign up"}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Creating account..." : "Sign up"}
               </Button>
             </form>
           </Form>

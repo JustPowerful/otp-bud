@@ -5,7 +5,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import CreateApplicationModal from "./components/CreateApplicationModal";
-import { Button } from "@/components/ui/button";
+import ConnectModal from "./components/ConnectModal";
 import TemplateManagement from "./components/templates/TemplateManagement";
 
 const ApplicationDetails = () => {
@@ -36,7 +36,7 @@ const ApplicationDetails = () => {
                 applicationId={applicationId}
                 onCreated={refetch}
               />
-              <Button variant="outline">Connect</Button>
+              <ConnectModal applicationId={applicationId} />
             </div>
           </div>
           <p className="text-sm text-zinc-500">{data.data.description}</p>
