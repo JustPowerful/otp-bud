@@ -1,9 +1,21 @@
-# OTP-Bud frontend
+# Setup
 
-In this following readme file, I will document my way of doing the frontend in a simplified way so anyone who wants to use the project can understand what I am doing.
+Follow the instructions below to set up the frontend of the OTP Bud application.
 
-## Storing the auth token
+### Install Dependencies
 
-I'm using _zustand_, it's a small and scalable state management library that has different built-in and community plugins, this makes it simple but really powerful.
+Navigate to the `frontend` directory and run the following command to install the necessary dependencies:
 
-In `src/stores/authStore.ts` I've specified actions and states to easily manipulate and store the auth token in the storage, I've extended the functionality of the zustand library to store the token in localStorage for persistant states using the `persist` middleware.
+```bash
+    pnpm install
+```
+
+### Start the Development Server
+
+Finally, start the frontend development server with the following command:
+
+```bash
+    pnpm dev
+```
+
+This will start the application and you can access it in your web browser at `http://localhost:5173` (or the port specified in your terminal).
