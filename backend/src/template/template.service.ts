@@ -174,4 +174,26 @@ export class TemplateService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  /**
+   *  Retrieves the active template associated with a specific application ID from the database. This function queries the database for a template that is marked as active (isActive: true) and matches the provided application ID, returning the active template data if found, or null if no active template exists for that application.
+   * @param applicationId The ID of the application to retrieve the active template for
+   * @returns The active template associated with the specified application ID, or null if no active template is found for that application
+   */
+  async getActiveTemplate(applicationId: string) {
+    const template = await prisma.template.findFirst({
+      where: {
+        applicationId,
+        isActive: true,
+      },
+      include: {
+        application: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return template;
+  }
 }

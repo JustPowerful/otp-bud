@@ -4,6 +4,8 @@ import { AuthModule } from './auth/auth.module';
 import { TokenModule } from './token/token.module';
 import { ApplicationModule } from './application/application.module';
 import { TemplateModule } from './template/template.module';
+import { OtpModule } from './otp/otp.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { TemplateModule } from './template/template.module';
     TokenModule,
     ApplicationModule,
     TemplateModule,
+    OtpModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
