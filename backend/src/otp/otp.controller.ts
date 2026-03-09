@@ -1,10 +1,17 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { OtpService } from './otp.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { EmailService } from 'src/email/email.service';
 import { TemplateService } from 'src/template/template.service';
 import { ValidateTokenKeyGuard } from 'src/common/guards/validate-token-key/validate-token-key.guard';
-import { ApiHeader, ApiSecurity } from '@nestjs/swagger';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { SuccessResponseDto } from 'src/common/dto/success-response.dto';
 
 @Controller('otp')
 export class OtpController {
@@ -13,8 +20,6 @@ export class OtpController {
     private readonly emailService: EmailService,
     private readonly templateService: TemplateService,
   ) {}
-  // This endpoint is not secure yet and should be protected using Guards
-  // Plus you have to validate that the application belongs to the user having the API key (token)
   @Post('send')
   @UseGuards(ValidateTokenKeyGuard)
   async sendOtp(@Body() { email, applicationId }: CreateOtpDto) {
@@ -37,6 +42,24 @@ export class OtpController {
       text:
         formattedEmail ||
         `Your OTP code is ${otpRecord.otp}. It expires at ${expiresAt.toLocaleTimeString()}.`,
+    });
+    return new SuccessResponseDto({
+      message: 'OTP sent successfully',
+    });
+  }
+
+  @Post('validate')
+  @UseGuards(ValidateTokenKeyGuard)
+  async validateOtp(@Body() { email, otp, applicationId }: VerifyOtpDto) {
+    const isValid = await this.otpService.verifyOtp(email, otp, applicationId);
+    // if the OTP is valid, you can remove the token as it is validated and should not be used again
+    if (!isValid) throw new UnauthorizedException('Invalid OTP');
+    await this.otpService.deleteOtp(email, applicationId);
+    return new SuccessResponseDto({
+      message: 'OTP is valid',
+      data: {
+        valid: isValid,
+      },
     });
   }
 }
