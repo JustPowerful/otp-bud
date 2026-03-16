@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  HttpException,
+  HttpStatus,
   Post,
   UnauthorizedException,
   UseGuards,
@@ -58,8 +60,9 @@ export class OtpController {
 
     const isBlocked = await this.redis.get(blockKey);
     if (isBlocked === 'blocked') {
-      throw new UnauthorizedException(
+      throw new HttpException(
         'Too many failed attempts. Please try again later.',
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
