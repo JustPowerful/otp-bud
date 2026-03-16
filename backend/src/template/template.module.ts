@@ -7,5 +7,6 @@ import { ApplicationService } from 'src/application/application.service';
 @Module({
   providers: [TemplateService, ApplicationService],
   controllers: [TemplateController],
+  exports: [TemplateService],
 })
 export class TemplateModule {}
