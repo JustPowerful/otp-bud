@@ -19,6 +19,7 @@ import { UpdateTemplateDto } from './dto/update-template.dto';
 import { TemplateOwnershipGuard } from './guards/template-ownership/template-ownership.guard';
 import { ApplicationOwnershipGuard } from 'src/application/guards/application-ownership/application-ownership.guard';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { TemplateBodySanitizerPipe } from './pipes/template-body-sanitizer.pipe';
 
 @Controller('template')
 export class TemplateController {
@@ -46,7 +47,8 @@ export class TemplateController {
   @UseGuards(AuthGuard, ApplicationOwnershipGuard)
   async createTemplate(
     @Param('applicationId') applicationId: string,
-    @Body() createTemplateDto: CreateTemplateDto,
+    @Body(TemplateBodySanitizerPipe)
+    createTemplateDto: CreateTemplateDto,
   ) {
     const template = await this.templateService.createTemplate(
       applicationId,
@@ -111,7 +113,8 @@ export class TemplateController {
   @UseGuards(AuthGuard, TemplateOwnershipGuard)
   async updateTemplate(
     @Param('templateId') templateId: string,
-    @Body() updateTemplateDto: UpdateTemplateDto,
+    @Body(TemplateBodySanitizerPipe)
+    updateTemplateDto: UpdateTemplateDto,
   ) {
     const template = await this.templateService.updateTemplate(
       templateId,

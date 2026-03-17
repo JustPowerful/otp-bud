@@ -40,12 +40,14 @@ export class OtpController {
       .replace('{{appname}}', template.application.name)
       .replace('{{expiry}}', expiresAt.toLocaleTimeString())
       .replace('{{email}}', email);
+    const fallbackText = `Your OTP code is ${otpRecord.otp}. It expires at ${expiresAt.toLocaleTimeString()}.`;
+    const htmlBody = formattedEmail || `<p>${fallbackText}</p>`;
+    const textBody = fallbackText;
     await this.emailService.sendEmail({
       to: email,
       subject: template?.subject || 'Your OTP Code',
-      text:
-        formattedEmail ||
-        `Your OTP code is ${otpRecord.otp}. It expires at ${expiresAt.toLocaleTimeString()}.`,
+      text: textBody,
+      html: htmlBody,
     });
     return new SuccessResponseDto({
       message: 'OTP sent successfully',
