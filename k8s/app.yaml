@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otpbud-backend
+  namespace: otp-bud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otpbud-backend
+  template:
+    metadata:
+      labels:
+        app: otpbud-backend
+    spec:
+      # Replaces depends_on: wait until Postgres and Redis accept connections
+      initContainers:
+        - name: wait-for-deps
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z postgres 5432; do echo "waiting for postgres"; sleep 2; done
+              until nc -z redis 6379; do echo "waiting for redis"; sleep 2; done
+      containers:
+        - name: app
+          image: otpbud-backend:latest
+          # "Never" = use the image you built inside minikube's Docker daemon.
+          # Change to IfNotPresent/Always and use a registry image when you deploy for real.
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: otpbud-env
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          # If you have a health endpoint, prefer:
+          # httpGet: { path: /health, port: 3000 }
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { memory: 1Gi, cpu: 500m }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otpbud-backend
+  namespace: otp-bud
+spec:
+  type: ClusterIP
+  selector:
+    app: otpbud-backend
+  ports:
+    - port: 80
+      targetPort: 3000
