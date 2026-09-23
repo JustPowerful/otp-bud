@@ -97,27 +97,16 @@ export function Home() {
                 <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
                 <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
               </div>
-              <pre className="text-sm font-mono leading-relaxed">
-                <span className="text-pink-400">curl</span> -X POST{" "}
-                <span className="text-blue-300">
-                  "https://api.otpbud.com/api/v1/otp/send"
-                </span>{" "}
-                \ <br />
-                {"  "} -H{" "}
-                <span className="text-green-300">
-                  "Authorization: your_api_key_here"
-                </span>{" "}
-                \ <br />
-                {"  "} -H{" "}
-                <span className="text-green-300">
-                  "Content-Type: application/json"
-                </span>{" "}
-                \ <br />
-                {"  "} -d <span className="text-yellow-300">'{"{"}'</span>
-                <br />
-                {'       "applicationId": "app_clk201",'} <br />
-                {'       "email": "user@example.com"'} <br />
-                {"     "} <span className="text-yellow-300">{"}'"}</span>
+
+              <pre className="text-sm font-mono leading-relaxed text-slate-300">
+                {`curl -X POST http://${document.location.hostname}/otp/send \\
+            -H "Content-Type: application/json" \\
+            -H "Authorization: Bearer YOUR_TOKEN_KEY" \\
+            -d '{
+              "email": "user@example.com",
+              "applicationId": "your-app-id",
+              "token": "your-token-key"
+            }'`}
               </pre>
             </div>
           </div>

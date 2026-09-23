@@ -6,6 +6,8 @@ import SignUp from "@/pages/auth/SignUp";
 import ApiTokenManagement from "@/pages/api-token/ApiTokenManagement";
 import ApplicationManagement from "@/pages/application/ApplicationManagement";
 import ApplicationDetails from "@/pages/application/ApplicationDetails";
+import Documentation from "@/pages/Documentation";
+import SmtpConfig from "@/pages/smtp-config/SmtpConfig";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +23,8 @@ export const router = createBrowserRouter([
       { path: "applications", element: <ApplicationManagement /> },
       // Application details
       { path: "applications/:applicationId", element: <ApplicationDetails /> },
+      { path: "docs", element: <Documentation /> },
+      { path: "smtp-config", element: <SmtpConfig /> },
     ],
   },
 ]);

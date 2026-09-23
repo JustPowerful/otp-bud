@@ -14,4 +14,7 @@ export class CreateApplicationDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsString()
+  emailId: string; // email smtp config ID
 }

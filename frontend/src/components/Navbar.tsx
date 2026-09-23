@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Key, LayoutGrid, LogOut, Zap } from "lucide-react";
+import { Key, LayoutGrid, LogOut, Zap, BookOpen, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -68,6 +68,28 @@ export function Navbar() {
                   )}
                 >
                   API Keys
+                </Link>
+                <Link
+                  to="/docs"
+                  className={cn(
+                    "px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
+                    isCurrentPath("/docs")
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50",
+                  )}
+                >
+                  Docs
+                </Link>
+                <Link
+                  to="/smtp-config"
+                  className={cn(
+                    "px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200",
+                    isCurrentPath("/smtp-config")
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50",
+                  )}
+                >
+                  SMTP Config
                 </Link>
               </div>
             )}
@@ -128,7 +150,7 @@ export function Navbar() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       asChild
-                      className="cursor-pointer rounded-lg focus:bg-slate-50"
+                      className="cursor-pointer rounded-lg mb-1 focus:bg-slate-50"
                     >
                       <Link
                         to="/api-keys"
@@ -136,6 +158,30 @@ export function Navbar() {
                       >
                         <Key className="mr-2.5 h-4 w-4 text-slate-400" />
                         <span className="font-medium">API Keys</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      asChild
+                      className="cursor-pointer rounded-lg mb-1 focus:bg-slate-50"
+                    >
+                      <Link
+                        to="/docs"
+                        className="flex items-center flex-row w-full py-2"
+                      >
+                        <BookOpen className="mr-2.5 h-4 w-4 text-slate-400" />
+                        <span className="font-medium">Documentation</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      asChild
+                      className="cursor-pointer rounded-lg focus:bg-slate-50"
+                    >
+                      <Link
+                        to="/smtp-config"
+                        className="flex items-center flex-row w-full py-2"
+                      >
+                        <Mail className="mr-2.5 h-4 w-4 text-slate-400" />
+                        <span className="font-medium">SMTP Config</span>
                       </Link>
                     </DropdownMenuItem>
                   </div>

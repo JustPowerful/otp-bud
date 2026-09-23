@@ -12,6 +12,7 @@ export interface CreateApplicationRequest {
   name: string;
   description?: string;
   picture?: string;
+  emailId: string;
 }
 
 export interface CreateApplicationResponse {

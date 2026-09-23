@@ -3,9 +3,10 @@ import {
   type CreateApplicationRequest,
   type UpdateApplicationRequest,
 } from "@/api/applicationApi";
+import { smtpApi } from "@/api/smtpApi";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -22,6 +23,15 @@ const CreateApplicationModal = ({
 }: CreateApplicationModalProps) => {
   const [isCreateToggle, setIsCreateToggle] = useState(false);
 
+  // Fetch SMTP configurations
+  const { data: smtpConfigsResponse, isLoading: isSmtpLoading } = useQuery({
+    queryKey: ["smtpConfigs"],
+    queryFn: () => smtpApi.getAllSmtpConfigs(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const smtpConfigs = smtpConfigsResponse?.data || [];
+
   const {
     register,
     handleSubmit,
@@ -31,6 +41,7 @@ const CreateApplicationModal = ({
     defaultValues: {
       name: "",
       description: "",
+      emailId: "",
     },
   });
   const { mutate: createApplication, isPending: isCreateLoading } = useMutation(
@@ -122,6 +133,39 @@ const CreateApplicationModal = ({
               {...register("description")}
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Email Configuration *
+            </label>
+            <select
+              className="w-full px-3 py-2 border rounded-md"
+              {...register("emailId", {
+                required: "Please select an email configuration",
+              })}
+              disabled={isSmtpLoading}
+            >
+              <option value="">
+                {isSmtpLoading
+                  ? "Loading configurations..."
+                  : "Select an email configuration"}
+              </option>
+              {smtpConfigs.map((config) => (
+                <option key={config.id} value={config.id}>
+                  {config.smtpService} ({config.smtpUser})
+                </option>
+              ))}
+            </select>
+            {errors.emailId && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.emailId.message}
+              </p>
+            )}
+            {smtpConfigs.length === 0 && !isSmtpLoading && (
+              <p className="text-sm text-amber-600 mt-1">
+                No email configurations available. Please create one first.
+              </p>
+            )}
+          </div>
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
@@ -130,7 +174,15 @@ const CreateApplicationModal = ({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isCreateLoading || isUpdateLoading}>
+            <Button
+              type="submit"
+              disabled={
+                isCreateLoading ||
+                isUpdateLoading ||
+                isSmtpLoading ||
+                smtpConfigs.length === 0
+              }
+            >
               {isCreateLoading || isUpdateLoading
                 ? "Saving..."
                 : mode === "create"

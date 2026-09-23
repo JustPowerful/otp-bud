@@ -19,8 +19,8 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Qahwa Internal API')
-    .setDescription("Qahwa ' internal app API (Private)")
+    .setTitle('Otp-bud Internal API')
+    .setDescription('Otp-bud app API')
     .setVersion('0.1')
     .addBearerAuth(
       {

@@ -20,9 +20,11 @@ const ApplicationPreview = ({
   return (
     <Card key={application.id}>
       <CardHeader className="flex flex-row items-center gap-3">
+        {/* Copy ID button */}
         <div className="h-10 w-10 rounded-md bg-muted text-muted-foreground flex items-center justify-center text-sm font-semibold uppercase">
           {application.name?.[0] || "A"}
         </div>
+
         <div className="min-w-0">
           <CardTitle className="text-base truncate">
             <Link to={`/applications/${application.id}`}>

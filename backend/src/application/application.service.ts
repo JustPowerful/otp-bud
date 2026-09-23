@@ -45,7 +45,7 @@ export class ApplicationService {
    */
   async createApplication(
     ownerId: string,
-    { name, description, picture }: CreateApplicationDto,
+    { name, description, picture, emailId }: CreateApplicationDto,
   ) {
     return await prisma.application.create({
       data: {
@@ -53,6 +53,7 @@ export class ApplicationService {
         description,
         picture,
         ownerId: ownerId,
+        emailId,
       },
     });
   }
@@ -100,6 +101,10 @@ export class ApplicationService {
     applicationId: string,
     updateApplicationDto: UpdateApplicationDto,
   ) {
+    if (!updateApplicationDto.name && !updateApplicationDto.emailId)
+      throw new Error(
+        'Name and email config are required to update the application.',
+      );
     return await prisma.application.update({
       where: {
         id: applicationId,

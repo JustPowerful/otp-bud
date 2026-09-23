@@ -17,6 +17,7 @@ model User {
 
   tokens       Token[] // The tokens associated with the user
   applications Application[] // The applications owned by the user
+  emails Email[] // The email configurations associated with the user
 
   accountId String
   account   Account @relation(fields: [accountId], references: [id])
@@ -53,6 +54,9 @@ model Application {
   templates Template[] // The email templates associated with the application
   otps     Otp[]      // The OTPs associated with the application
 
+  emailId String? // The email configuration is initially empty
+  email Email? @relation(fields: [emailId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -81,4 +85,21 @@ model Template {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/*
+Rather than storing the email in the database
+I would store it in the email service provider (ESP)
+*/
+model Email {
+  id String @id @default(cuid())
+  smtpService String @default("smtp.gmail.com") // Example smtp.gmail.com
+  smtpPort Int @default(587) // Example 587
+  smtpUser String // Example test@gmail.com
+  smtpPassword String // Example password
+
+  applications Application[]
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
 }

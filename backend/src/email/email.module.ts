@@ -1,36 +1,20 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailService } from './email.service';
 
+/**
+ * EmailModule - Handles email sending with application-backed SMTP configuration
+ *
+ * The service fetches SMTP credentials from the application's linked email config in the database.
+ *
+ * Example:
+ * await emailService.sendEmail({
+ *   to: 'user@example.com',
+ *   subject: 'OTP Code',
+ *   html: 'Your OTP is...',
+ *   applicationId: 'app-123', // This will use the app's SMTP config
+ * });
+ */
 @Module({
-  imports: [
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const port = Number(config.get<string>('SMTP_PORT', '587'));
-        const secure =
-          config.get<string>('SMTP_SECURE', port === 465 ? 'true' : 'false') ===
-          'true';
-
-        return {
-          transport: {
-            host: config.get<string>('SMTP_HOST'),
-            port,
-            secure,
-            auth: {
-              user: config.get<string>('SMTP_USER'),
-              pass: config.get<string>('SMTP_PASS'),
-            },
-          },
-          defaults: {
-            from: config.get<string>('SMTP_FROM'),
-          },
-        };
-      },
-    }),
-  ],
   providers: [EmailService],
   exports: [EmailService],
 })

@@ -48,6 +48,7 @@ export class OtpController {
       subject: template?.subject || 'Your OTP Code',
       text: textBody,
       html: htmlBody,
+      applicationId, // Pass the applicationId to use the app's SMTP config
     });
     return new SuccessResponseDto({
       message: 'OTP sent successfully',
