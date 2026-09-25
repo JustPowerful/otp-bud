@@ -18,6 +18,7 @@ import {
 } from "@/api/smtpApi";
 import "./SmtpConfig.css";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface FormData {
   smtpService: string;
@@ -217,7 +218,7 @@ const SmtpConfig = () => {
 
             <div className="form-group">
               <label htmlFor="smtpService">SMTP Service URL *</label>
-              <input
+              <Input
                 type="text"
                 id="smtpService"
                 name="smtpService"
@@ -231,7 +232,7 @@ const SmtpConfig = () => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="smtpPort">SMTP Port *</label>
-                <input
+                <Input
                   type="text"
                   id="smtpPort"
                   name="smtpPort"
@@ -244,7 +245,7 @@ const SmtpConfig = () => {
 
               <div className="form-group">
                 <label htmlFor="smtpUser">Email Address *</label>
-                <input
+                <Input
                   type="email"
                   id="smtpUser"
                   name="smtpUser"
@@ -258,7 +259,7 @@ const SmtpConfig = () => {
 
             <div className="form-group">
               <label htmlFor="smtpPassword">SMTP Password *</label>
-              <input
+              <Input
                 type="password"
                 id="smtpPassword"
                 name="smtpPassword"

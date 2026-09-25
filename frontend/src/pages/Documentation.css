@@ -30,7 +30,7 @@ h2 {
   margin-top: 40px;
   margin-bottom: 20px;
   font-size: 1.8rem;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #151516;
   padding-bottom: 10px;
 }
 
@@ -59,14 +59,10 @@ section {
   border-bottom: none;
 }
 
-strong {
-  color: #667eea;
-}
-
 /* Endpoint Cards */
 .endpoint-card {
   background: #f8f9fa;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid black;
   padding: 30px;
   margin-bottom: 30px;
   border-radius: 8px;
@@ -80,7 +76,6 @@ strong {
 
 .endpoint-card h2 {
   margin-top: 0;
-  color: #667eea;
   font-size: 1.4rem;
   border-bottom: none;
   padding-bottom: 0;
@@ -117,31 +112,6 @@ strong {
   color: inherit;
 }
 
-/* Copy Button */
-.copy-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.copy-button:hover {
-  background: #764ba2;
-  transform: scale(1.05);
-}
-
-.copy-button:active {
-  transform: scale(0.98);
-}
-
 /* Response Info Section */
 .response-info p {
   color: #666;
@@ -166,10 +136,6 @@ strong {
 
 .examples li:last-child {
   border-bottom: none;
-}
-
-.examples strong {
-  color: #667eea;
 }
 
 /* Responsive Design */

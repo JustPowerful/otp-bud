@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Documentation.css";
+import { Button } from "@/components/ui/button";
 
 export default function Documentation() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -72,13 +73,14 @@ export default function Documentation() {
                 <pre className="code-block">
                   <code>{snippet.command}</code>
                 </pre>
-                <button
-                  className="copy-button"
+                <Button
+                  className="absolute top-2 right-2"
+                  variant="secondary"
                   onClick={() => handleCopy(index, snippet.command)}
                   title="Copy to clipboard"
                 >
                   {copiedIndex === index ? "✓ Copied!" : "Copy"}
-                </button>
+                </Button>
               </div>
             </div>
           ))}
