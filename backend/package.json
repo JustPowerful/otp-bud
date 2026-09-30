@@ -85,6 +85,10 @@
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1",
+      "^generated/(.*)$": "<rootDir>/../generated/$1"
+    },
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
