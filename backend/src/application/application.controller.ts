@@ -31,7 +31,7 @@ export class ApplicationController {
     @CurrentUser() user: JwtPayload,
     @Body() body: CreateApplicationDto,
   ) {
-    const application = this.applicationService.createApplication(
+    const application = await this.applicationService.createApplication(
       user.id,
       body,
     );
@@ -90,7 +90,7 @@ export class ApplicationController {
     @Param('applicationId') applicationId: string,
     @Body() body: UpdateApplicationDto,
   ) {
-    const application = this.applicationService.updateApplication(
+    const application = await this.applicationService.updateApplication(
       applicationId,
       body,
     );
@@ -105,7 +105,7 @@ export class ApplicationController {
   @UseGuards(AuthGuard, ApplicationOwnershipGuard)
   async removeApplication(@Param('applicationId') applicationId: string) {
     const application =
-      this.applicationService.removeApplication(applicationId);
+      await this.applicationService.removeApplication(applicationId);
     return new SuccessResponseDto({
       data: application,
       message: 'Successfully removed the application',
