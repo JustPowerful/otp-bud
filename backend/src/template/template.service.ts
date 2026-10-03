@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { prisma } from 'src/lib/prisma';
 import { UpdateTemplateDto } from './dto/update-template.dto';
@@ -33,25 +33,39 @@ export class TemplateService {
    */
   async setActiveTemplate(applicationId: string, templateId: string) {
     // First, deactivate all templates for the application
-    await prisma.template.updateMany({
-      where: {
-        applicationId,
-      },
-      data: {
-        isActive: false,
-      },
-    });
+    return await prisma.$transaction(async (tx) => {
+      const target = await tx.template.findUnique({
+        where: {
+          id: templateId,
+          applicationId,
+        },
+      });
 
-    // Then, activate the specified template
-    const template = await prisma.template.update({
-      where: {
-        id: templateId,
-      },
-      data: {
-        isActive: true,
-      },
+      if (!target) {
+        throw new NotFoundException(
+          'Template with ID ' + templateId + ' not found.',
+        );
+      }
+
+      await tx.template.updateMany({
+        where: {
+          applicationId,
+        },
+        data: {
+          isActive: false,
+        },
+      });
+
+      // Then, activate the specified template
+      return await tx.template.update({
+        where: {
+          id: templateId,
+        },
+        data: {
+          isActive: true,
+        },
+      });
     });
-    return template;
   }
 
   /**
@@ -64,26 +78,29 @@ export class TemplateService {
     applicationId: string,
     { name, subject, body }: CreateTemplateDto,
   ) {
-    // Check if other active templates exist for the application
-    const activeTemplate = await prisma.template.findFirst({
-      where: {
-        applicationId,
-        isActive: true,
-      },
-    });
+    return await prisma.$transaction(async (tx) => {
+      // Check if other active templates exist for the application
+      const activeTemplate = await tx.template.findFirst({
+        where: {
+          applicationId,
+          isActive: true,
+        },
+      });
 
-    const isActive = !activeTemplate; // Set the new template as active if no other active templates exist
+      const isActive = !activeTemplate; // Set the new template as active if no other active templates exist
 
-    const template = await prisma.template.create({
-      data: {
-        name,
-        subject,
-        body,
-        applicationId,
-        isActive,
-      },
+      const template = await tx.template.create({
+        data: {
+          name,
+          subject,
+          body,
+          applicationId,
+          isActive,
+        },
+      });
+
+      return template;
     });
-    return template;
   }
 
   /**

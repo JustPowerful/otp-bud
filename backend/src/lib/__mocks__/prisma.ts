@@ -13,11 +13,15 @@ const delegate = () => {
 };
 
 const models = new Map<PropertyKey, ReturnType<typeof delegate>>();
+const transaction = jest.fn((callback: (tx: unknown) => unknown) =>
+  callback(prisma),
+);
 
 export const prisma = new Proxy(
   {},
   {
     get: (_, model: PropertyKey) => {
+      if (model === '$transaction') return transaction;
       if (!models.has(model)) models.set(model, delegate());
       return models.get(model);
     },

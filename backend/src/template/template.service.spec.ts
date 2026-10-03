@@ -8,6 +8,8 @@ describe('TemplateService', () => {
   let service: TemplateService;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [TemplateService],
     }).compile();
@@ -88,6 +90,10 @@ describe('TemplateService', () => {
         updatedAt: new Date(),
       };
 
+      jest.mocked(prisma.template.findUnique).mockResolvedValue({
+        id: templateId,
+        applicationId,
+      } as never);
       jest.mocked(prisma.template.updateMany).mockResolvedValue({ count: 1 });
       jest
         .mocked(prisma.template.update)
@@ -120,14 +126,13 @@ describe('TemplateService', () => {
       const applicationId = 'app-id';
       const templateId = 'non-existent-template-id';
 
-      jest.mocked(prisma.template.updateMany).mockResolvedValue({ count: 1 });
-      jest
-        .mocked(prisma.template.update)
-        .mockRejectedValue(new Error('Template not found'));
+      jest.mocked(prisma.template.findUnique).mockResolvedValue(null);
 
       await expect(
         service.setActiveTemplate(applicationId, templateId),
-      ).rejects.toThrow('Template not found');
+      ).rejects.toThrow(`Template with ID ${templateId} not found.`);
+      expect(prisma.template.updateMany).not.toHaveBeenCalled();
+      expect(prisma.template.update).not.toHaveBeenCalled();
     });
   });
 
@@ -497,6 +502,13 @@ describe('TemplateService', () => {
           applicationId,
           isActive: true,
         },
+        include: {
+          application: {
+            select: {
+              name: true,
+            },
+          },
+        },
       });
 
       expect(result).toEqual(mockActiveTemplate);
@@ -512,6 +524,13 @@ describe('TemplateService', () => {
         where: {
           applicationId,
           isActive: true,
+        },
+        include: {
+          application: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
 

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -10,30 +11,43 @@ import * as argon2 from 'argon2';
 import * as jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 import { JwtPayload } from '../types/express';
+import { Prisma } from 'generated/prisma/client';
 
 @Injectable()
 export class AuthService {
   async register({ firstname, lastname, email, password }: RegisterAuthDto) {
-    const exists = await prisma.account.findUnique({
-      where: { email },
-    });
-    if (exists) {
-      throw new Error('Account with this email already exists');
+    try {
+      await prisma.$transaction(async (tx) => {
+        const exists = await tx.account.findUnique({
+          where: { email },
+        });
+        if (exists) {
+          throw new Error('Account with this email already exists');
+        }
+        const hashedPassword = await argon2.hash(password);
+        const account = await tx.account.create({
+          data: {
+            email,
+            password: hashedPassword,
+          },
+        });
+        await tx.user.create({
+          data: {
+            firstname,
+            lastname,
+            accountId: account.id,
+          },
+        });
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      ) {
+        throw new ConflictException('Account with this email already exists');
+      }
+      throw e;
     }
-    const hashedPassword = await argon2.hash(password);
-    const account = await prisma.account.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
-    await prisma.user.create({
-      data: {
-        firstname,
-        lastname,
-        accountId: account.id,
-      },
-    });
   }
   async login({ email, password }: LoginAuthDto) {
     const account = await prisma.account.findUnique({
